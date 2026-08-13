@@ -3,7 +3,6 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
@@ -16,16 +15,13 @@ export default async function handler(req) {
 
   const url = new URL(req.url);
   
-  // Forward path and search params (e.g. /v1beta/models/gemini-2.5-flash:generateContent?key=...)
+  // Captures the full path (e.g. /v1beta/models/gemini-2.5-flash:generateContent)
   const targetUrl = `https://generativelanguage.googleapis.com${url.pathname}${url.search}`;
 
   const headers = new Headers(req.headers);
   headers.set('Host', 'generativelanguage.googleapis.com');
-  
-  // Strip origin tracking headers
   headers.delete('x-forwarded-for');
   headers.delete('x-real-ip');
-  headers.delete('cf-connecting-ip');
 
   try {
     const response = await fetch(targetUrl, {
