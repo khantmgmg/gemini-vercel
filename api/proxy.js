@@ -3,6 +3,7 @@ export const config = {
 };
 
 export default async function handler(req) {
+  // 1. Handle CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
@@ -14,10 +15,14 @@ export default async function handler(req) {
   }
 
   const url = new URL(req.url);
-  
-  // Captures the full path (e.g. /v1beta/models/gemini-2.5-flash:generateContent)
+
+  // 2. Remove Vercel's internal 'path' rewrite parameter
+  url.searchParams.delete('path');
+
+  // 3. Reconstruct target URL for Google Gemini
   const targetUrl = `https://generativelanguage.googleapis.com${url.pathname}${url.search}`;
 
+  // 4. Copy and scrub request headers
   const headers = new Headers(req.headers);
   headers.set('Host', 'generativelanguage.googleapis.com');
   headers.delete('x-forwarded-for');
